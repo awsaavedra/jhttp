@@ -28,22 +28,26 @@ pipeline:
                     command: |-
                       echo "Welcome to Harness CI"
                       mvn -B package --file pom.xml
-                      # Verify JAR file was created
-                      ls -la target/
-                      # Make sure the directory exists for Docker context
-                      mkdir -p target
+                      echo "Contents of current directory:"
+                      ls -la
+                      echo "Contents of target directory:"
+                      ls -la target/ || echo "Target directory not found"
+                      # Ensure the Dockerfile can find the JAR file
+                      cp -r target/ $(pwd) || echo "Failed to copy target directory"
               - step:
                   identifier: dockerbuild
                   name: docker_build
                   spec:
-                    caching: true
+                    caching: false
                     connectorRef: dockerhub_connector
                     repo: jhttp
                     tags:
                       - latest
                     dockerfilePath: Dockerfile
                     context: .
-                  timeout: ""
+                    buildArgs:
+                      JAR_FILE: target/jhttp-1.0-SNAPSHOT.jar
+                  timeout: 10m
                   type: BuildAndPushDockerRegistry
           platform:
             arch: Amd64
