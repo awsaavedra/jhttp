@@ -37,7 +37,7 @@ pipeline:
                   name: docker_build
                   spec:
                     caching: true
-                    connectorRef: <+input>
+                    connectorRef: dockerhub_connector
                     repo: jhttp
                     tags:
                       - latest
