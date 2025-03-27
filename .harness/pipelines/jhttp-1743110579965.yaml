@@ -20,21 +20,29 @@ pipeline:
           execution:
             steps:
               - step:
-                  identifier: echo
-                  name: echo
-                  spec:
-                    command: echo hello world
-                  timeout: ""
                   type: Run
+                  identifier: build_java_app
+                  name: Build Java App
+                  spec:
+                    shell: Sh
+                    command: |-
+                      echo "Welcome to Harness CI"
+                      mvn -B package --file pom.xml
+                      # Verify JAR file was created
+                      ls -la target/
+                      # Make sure the directory exists for Docker context
+                      mkdir -p target
               - step:
                   identifier: dockerbuild
                   name: docker_build
                   spec:
                     caching: true
                     connectorRef: <+input>
-                    repo: hello/world
+                    repo: jhttp
                     tags:
                       - latest
+                    dockerfilePath: Dockerfile
+                    context: .
                   timeout: ""
                   type: BuildAndPushDockerRegistry
           platform:
